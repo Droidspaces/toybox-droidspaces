@@ -26,11 +26,21 @@ char *toybox_version = TOYBOX_VERSION, toybuf[4096], libbuf[4096];
 struct toy_list *toy_find(char *name)
 {
   int top, bottom, middle;
+  char *mystr;
 
   if (!CFG_TOYBOX || strchr(name, '/')) return 0;
 
   // Multiplexer name works as prefix, else skip first entry (it's out of order)
-  if (!toys.which && strstart(&name, toy_list->name)) return toy_list;
+   if (!toys.which) {
+    mystr = name;
+    if (strstart(&mystr, toy_list->name)) return toy_list;
+    /*
+     * Droidspaces may install this multicall binary under a busybox-prefixed
+     * name, for example busybox or busybox-x86_64. Treat that as the
+     * multiplexer too, without adding a fake busybox applet.
+     */
+    if (strstart(&mystr, "busybox")) return toy_list;
+  }
   bottom = 1;
 
   // Binary search to find this command.
