@@ -74,4 +74,8 @@ echo -e ".PHONY: $WORKING $PENDING" | $SED 's/ \([^ ]\)/ test_\1/g'
 
 brun kconfig -h > "$GENDIR"/help.h || exit 1
 
-[ $# -ne 1 ] || brun kconfig "$1" > "${KCONFIG_CONFIG:-.config}"
+if [ $# -eq 1 ]
+then
+  OUT="${KCONFIG_CONFIG:-.config}"
+  brun kconfig "$1" > "$OUT.tmp" && mv "$OUT.tmp" "$OUT"
+fi
